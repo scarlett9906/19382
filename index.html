@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA MIREXP</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #000;
+      color: #ff0000;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 260px;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 20px;
+      border-right: 2px solid #ff0000;
+    }
+    .sidebar img.logo {
+      width: 200px;
+      animation: zoomIn 1s ease forwards, pulse 2s infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes zoomIn {
+      0% { transform: scale(3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { filter: drop-shadow(0 0 5px #f00); }
+      50% { filter: drop-shadow(0 0 15px #f00); }
+    }
+    .sidebar button {
+      width: 90%;
+      margin: 6px 0;
+      background: #1a1a1a;
+      color: #ff0000;
+      border: 1px solid #ff0000;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar button:hover {
+      background: #ff0000;
+      color: black;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .welcome-screen {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+    .welcome-screen img {
+      width: 400px;
+      animation: fadeIn 2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .tab-bar {
+      display: flex;
+      background: #111;
+      border-bottom: 2px solid #ff0000;
+      overflow-x: auto;
+      padding: 10px;
+      display: none;
+    }
+    .tab-bar div {
+      margin-right: 10px;
+      padding: 8px 12px;
+      background: #1a1a1a;
+      border: 1px solid #ff0000;
+      border-radius: 10px;
+      color: #ff0000;
+      cursor: pointer;
+    }
+    .chat-panel {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      background: #000;
+      padding: 20px;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .chat-input {
+      display: flex;
+      align-items: center;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      background: #111;
+      border: 1px solid #ff0000;
+      color: #ff0000;
+      border-radius: 10px 0 0 10px;
+    }
+    .chat-input button {
+      background: #ff0000;
+      border: none;
+      color: black;
+      padding: 10px 20px;
+      border-radius: 0 10px 10px 0;
+      cursor: pointer;
+    }
+    .chat-options {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .chat-options button {
+      flex: 1;
+      margin: 0 4px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ff0000;
+      background: #1a1a1a;
+      color: #ff0000;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <img src="logo.png" alt="Logo IA" class="logo" />
+    <button onclick="createChat('🗺️ Gerador de mapa')">🗺️ Gerador de mapa</button>
+    <button onclick="createChat('🎮 Scripts/lógicas')">🎮 Scripts/lógicas</button>
+    <button onclick="createChat('🎬 Cutscene/vídeos')">🎬 Cutscene/vídeos</button>
+    <button onclick="createChat('🖥️ UI/Botões')">🖥️ UI/Botões</button>
+    <button onclick="createChat('🖼️ Banner')">🖼️ Banner</button>
+    <button onclick="createChat('🎫 Game pass')">🎫 Game pass</button>
+    <button onclick="createChat('🧠 Ideias de mapa')">🧠 Ideias de mapa</button>
+    <button onclick="createChat('💬 Chat geral')">💬 Chat geral</button>
+    <button onclick="createChat('👨‍💻 Roblox Intelligence')">👨‍💻 Roblox Intelligence</button>
+    <button onclick="openSettings()">⚙️ Configurações</button>
+  </div>
+  <div class="main">
+    <div class="welcome-screen" id="welcome">
+      <img src="logo.png" alt="Logo Boas Vindas">
+    </div>
+    <div class="tab-bar" id="tabBar"></div>
+    <div class="chat-panel" id="chatPanel">
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+        <button onclick="sendMessage()">Enviar</button>
+      </div>
+      <div class="chat-options">
+        <button>✏️ Renomear</button>
+        <button>📎 Linkar</button>
+        <button>🗑️ Excluir</button>
+        <button>🧽 Limpar</button>
+        <button>💾 Restaurar</button>
+      </div>
+    </div>
+  </div>
+  <audio id="clickSound" src="click.mp3" preload="auto"></audio>
+  <script>
+    function createChat(label) {
+      const name = prompt(`Nome do chat para: ${label}`);
+      if (!name) return;
+      document.getElementById("welcome").style.display = "none";
+      document.getElementById("tabBar").style.display = "flex";
+      document.getElementById("chatPanel").style.display = "flex";
+      const tab = document.createElement("div");
+      tab.innerText = `${label} ${name}`;
+      tab.onclick = () => alert("Chat alternado (simulado)");
+      document.getElementById("tabBar").appendChild(tab);
+      document.getElementById("clickSound").play();
+    }
+    function openSettings() {
+      document.getElementById("welcome").style.display = "none";
+      document.getElementById("tabBar").style.display = "none";
+      document.getElementById("chatPanel").style.display = "flex";
+      document.getElementById("chatMessages").innerHTML = '<div class="chat-box">⚙️ Configurações IA MIREXP (em construção)</div>';
+    }
+    function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text) return;
+      const box = document.createElement("div");
+      box.className = "chat-box";
+      box.innerText = text;
+      document.getElementById("chatMessages").appendChild(box);
+      input.value = "";
+    }
+  </script>
+</body>
+</html>
